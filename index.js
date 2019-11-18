@@ -1,3 +1,5 @@
+// START BACKPACK
+
 // # | Item | Weight | Value |
 // # |------|--------|-------|
 // # | 1    | 2      | 1     |
@@ -35,11 +37,14 @@ for (let i = 1; i < n; i++) {
     }
 }
 
-console.log(JSON.stringify(K));
+//console.log(JSON.stringify(K));
 
+// END BACKPACK
+
+// START Algorithm1
 function readSolution(dynArray, aItemSizes, mMaxIndex, lLastUsedItemSize, sDesiredSumm) {
     if (sDesiredSumm === 0) {
-        return 0;
+        return [];
     }
 
     if (aItemSizes[mMaxIndex] >= sDesiredSumm) {
@@ -50,19 +55,77 @@ function readSolution(dynArray, aItemSizes, mMaxIndex, lLastUsedItemSize, sDesir
         return false;
     }
 
-    if (dynArray[sDesiredSumm-aItemSizes[mMaxIndex]] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
+    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex-1] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, aItemSizes[mMaxIndex], sDesiredSumm - aItemSizes[mMaxIndex]);
         if (result !== false) {
-            return [...aItemSizes[mMaxIndex], ...result];
+            return [aItemSizes[mMaxIndex], ...result];
         }
     }
 
-    if (dynArray[sDesiredSumm][mMaxIndex - 1] === 1) {
+    if (dynArray[sDesiredSumm][mMaxIndex-1] === 1) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
         if (result !== false) {
-            return [...aItemSizes[mMaxIndex], ...result];
+            return [aItemSizes[mMaxIndex], ...result];
         }
     }
 
     return false;
 }
+// END ALGORITHM 1
+
+function create2DArray(rows, columns) {
+    let arr = new Array(rows);
+
+    for (let i = 0; i < rows; i++) {
+        arr[i] = new Array(columns);
+    }
+
+    return arr;
+}
+
+// Returns true if there is a subset
+// of set[] with sun equal to given sum
+function generateSubset(set, n, sum) {
+    // The value of subset[i][j] will be true if there
+    // is a subset of set[0..j-1] with sum equal to i
+    const subset = create2DArray(sum + 1, n + 1);
+
+    // If sum is 0, then answer is true
+    for (let i = 0; i <= n; i++) {
+        subset[0][i] = 1;
+    }
+
+    // If sum is not 0 and set is empty, then answer is false
+    for (let i = 1; i <= sum; i++) {
+        subset[i][0] = 0;
+    }
+
+    // Fill the subset table in bottom up manner
+    for (let i = 1; i <= sum; i++) {
+        for (let j = 1; j <= n; j++) {
+            subset[i][j] = subset[i][j - 1];
+            if (i >= set[j - 1]) {
+                subset[i][j] = subset[i][j] ||
+                    subset[i - set[j - 1]][j - 1];
+            }
+        }
+    }
+
+    // return subset[sum][n];
+    return subset;
+}
+
+let set = [2, 3, 4, 5, 12, 34].sort((a, b) => a - b);
+let sum = 6; // 6 doesn't work
+let z = set.length;
+
+const dArray = generateSubset(set, z, sum);
+
+
+console.log(dArray[sum][z]);
+
+// dArray.forEach((arr) => arr.splice(0, 1));
+
+console.table(dArray);
+const res = readSolution(dArray, set, set.length-1, 0, sum);
+console.log(res);
