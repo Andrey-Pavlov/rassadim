@@ -47,7 +47,8 @@ function readSolution(dynArray, aItemSizes, mMaxIndex, lLastUsedItemSize, sDesir
         return [];
     }
 
-    if (aItemSizes[mMaxIndex] >= sDesiredSumm) {
+    // >= -> > - is it critical?
+    if (aItemSizes[mMaxIndex] > sDesiredSumm) {
         return readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
     }
 
@@ -55,22 +56,24 @@ function readSolution(dynArray, aItemSizes, mMaxIndex, lLastUsedItemSize, sDesir
         return false;
     }
 
-    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex-1] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
+    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex - 1] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, aItemSizes[mMaxIndex], sDesiredSumm - aItemSizes[mMaxIndex]);
         if (result !== false) {
             return [aItemSizes[mMaxIndex], ...result];
         }
     }
 
-    if (dynArray[sDesiredSumm][mMaxIndex-1] === 1) {
+    if (dynArray[sDesiredSumm][mMaxIndex - 1] === 1) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
         if (result !== false) {
-            return [aItemSizes[mMaxIndex], ...result];
+            // Doesn't work for [aItemSizes[mMaxIndex], ...result];
+            return [...result];
         }
     }
 
     return false;
 }
+
 // END ALGORITHM 1
 
 function create2DArray(rows, columns) {
@@ -115,17 +118,24 @@ function generateSubset(set, n, sum) {
     return subset;
 }
 
-let set = [2, 3, 4, 5, 12, 34].sort((a, b) => a - b);
-let sum = 6; // 6 doesn't work
+let set = [2, 3, 4, 12, 34, 1, 5, 6, 2, 98, 54, 123].sort((a, b) => a - b);
+let sum = 149;
 let z = set.length;
 
 const dArray = generateSubset(set, z, sum);
 
-
-console.log(dArray[sum][z]);
-
-// dArray.forEach((arr) => arr.splice(0, 1));
+dArray.forEach((val) => val.splice(0, 1));
 
 console.table(dArray);
-const res = readSolution(dArray, set, set.length-1, 0, sum);
-console.log(res);
+
+/*
+ readSolution(dptsum,i,a1 ...an,m,l,s)
+ The next solution can be obtained by blocking the use of the item ai with the lowest i in the previous solution,
+ and unblocking all aj for j < i
+*/
+const newArr = [0, ...set];
+const res = readSolution(dArray, newArr, newArr.length-1, 0, sum);
+
+console.log('Set: ', set);
+console.log('Ask: ', sum);
+console.log('Answer: ', res);
