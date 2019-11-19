@@ -205,22 +205,46 @@ const maxSpill = Math.max(0, Math.max(...[]) - minIgnored);
 const dArraySumOfBins = generateSubset(bins, bins.length - 1, bins.reduce((a, b) => a + b, 0));
 const dArraySumOfItemSizes = generateSubset(itemSizes, itemSizes.length - 1, itemSizes.reduce((a, b) => a + b, 0));
 
-for (let waste = 0; ; waste++) {
-    for (let spill = 0; spill <= maxSpill; spill++) {
-        const obtaining = waste + itemSum - spill;
+function removeSubset(arr, subset) {
+    const exclude = [...subset];
+    return arr.filter(x => {
+        const idx = exclude.indexOf(x);
+        if (idx >= 0) {
+            exclude.splice(idx, 1);
+            return false;
+        }
+        return true;
+    });
+}
 
-        const binsSet = readSolution(dArraySumOfBins, bins, bins.length - 1, 0, obtaining);
+function attemptAssign(binSet, itemSet, waste) {
+}
 
-        const obtainingItemSizesRes = readSolution(dArraySumOfItemSizes, itemSizes, itemSizes.length - 1, 0, spill);
+function alg2Calculate() {
+    for (let waste = 0; ; waste++) {
+        for (let spill = 0; spill <= maxSpill; spill++) {
+            const obtaining = waste + itemSum - spill;
 
-        if (sumBinsMap.has(obtaining) && sumMap.has(spill)) {
-            const binSets = sumBinsMap.get(obtaining);
-            binSets.forEach((bin) => {
-                bin.forEach((val) => {
-                    const findIndex = bins.findIndex(val);
-                    //////////////////////////
-                })
-            });
+            if (sumBinsMap.has(obtaining) && sumMap.has(spill)) {
+                const binSets = sumBinsMap.get(obtaining);
+                for (let i = 0; i < binSets.length; i++) {
+                    const binSet = binSets[i];
+                    const tempSet = removeSubset(bins, binSet);
+                    if (Math.max(...tempSet) - spill > minIgnored) {
+                        continue;
+                    }
+                    const itemSets = sumMap.get(itemSum - spill);
+                    for (let j = 0; j < itemSets.length; j++) {
+                        const itemSet = itemSets[j];
+                        const solution = attemptAssign(binSet, itemSet, waste);
+
+                        if (solution) {
+                            // assign (Items \ itemSum) to an unused bin in solution;
+                            return solution;
+                        }
+                    }
+                }
+            }
         }
     }
 }
