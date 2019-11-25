@@ -47,25 +47,25 @@ function readSolution(dynArray, aItemSizes, mMaxIndex, lLastUsedItemSize, sDesir
         return [];
     }
 
-    if (aItemSizes[mMaxIndex] >= sDesiredSumm) {
+    if (aItemSizes[mMaxIndex] > sDesiredSumm) {
         return readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
     }
 
-    if (mMaxIndex === 0 || dynArray[sDesiredSumm][mMaxIndex] === 0) {
+    if (mMaxIndex === -1 || dynArray[sDesiredSumm][mMaxIndex] === 0) {
         return false;
     }
 
-    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex-1] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
+    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, aItemSizes[mMaxIndex], sDesiredSumm - aItemSizes[mMaxIndex]);
         if (result !== false) {
             return [aItemSizes[mMaxIndex], ...result];
         }
     }
 
-    if (dynArray[sDesiredSumm][mMaxIndex-1] === 1) {
+    if (dynArray[sDesiredSumm][mMaxIndex] === 1) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
         if (result !== false) {
-            return [aItemSizes[mMaxIndex], ...result];
+            return result;
         }
     }
 
@@ -121,10 +121,9 @@ let z = set.length;
 
 const dArray = generateSubset(set, z, sum);
 
-
 console.log(dArray[sum][z]);
 
-// dArray.forEach((arr) => arr.splice(0, 1));
+dArray.forEach((arr) => arr.splice(0, 1));
 
 console.table(dArray);
 const res = readSolution(dArray, set, set.length-1, 0, sum);
