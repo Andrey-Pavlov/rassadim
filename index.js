@@ -120,8 +120,8 @@ function generateSubset(set, n, sum) {
     return subset;
 }
 
-let set = [2, 3, 4, 12, 34, 1, 5, 6, 2, 98, 54, 123].sort((a, b) => a - b);
-let sum = 149;
+let set = [2, 3, 4, 12, 34].sort((a, b) => a - b);
+let sum = 6;
 let z = set.length;
 
 const dArray = generateSubset(set, z, sum);
