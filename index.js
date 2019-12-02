@@ -52,22 +52,21 @@ function readSolution(dynArray, aItemSizes, mMaxIndex, lLastUsedItemSize, sDesir
         return readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
     }
 
-    if (mMaxIndex === 0 || dynArray[sDesiredSumm][mMaxIndex] === 0) {
+    if (mMaxIndex === -1 || dynArray[sDesiredSumm][mMaxIndex] === 0) {
         return false;
     }
 
-    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex - 1] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
+    if (dynArray[sDesiredSumm - aItemSizes[mMaxIndex]][mMaxIndex] === 1 && lLastUsedItemSize !== aItemSizes[mMaxIndex]) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, aItemSizes[mMaxIndex], sDesiredSumm - aItemSizes[mMaxIndex]);
         if (result !== false) {
             return [aItemSizes[mMaxIndex], ...result];
         }
     }
 
-    if (dynArray[sDesiredSumm][mMaxIndex - 1] === 1) {
+    if (dynArray[sDesiredSumm][mMaxIndex] === 1) {
         const result = readSolution(dynArray, aItemSizes, mMaxIndex - 1, lLastUsedItemSize, sDesiredSumm);
         if (result !== false) {
-            // Doesn't work for [aItemSizes[mMaxIndex], ...result];
-            return [...result];
+            return result;
         }
     }
 
