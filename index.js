@@ -125,7 +125,7 @@ let z = set.length;
 
 const dArray = generateSubset(set, z, sum);
 
-console.table(dArray);
+// console.table(dArray);
 
 /*
  readSolution(dptsum,i,a1 ...an,m,l,s)
@@ -134,9 +134,9 @@ console.table(dArray);
 */
 const res = readSolution(dArray, set, set.length - 1, 0, sum);
 
-console.log('Set: ', set);
-console.log('Ask: ', sum);
-console.log('Answer: ', res);
+// console.log('Set: ', set);
+// console.log('Ask: ', sum);
+// console.log('Answer: ', res);
 
 //
 function generateAllSubsquences(arr) {
@@ -163,46 +163,28 @@ function generateAllSubsquences(arr) {
     return dArray;
 }
 
-const bins = [100, 100, 100, 100];
-const itemSizes = [95, 195, 95, 395];
+function generateSumSetsMap(allSubSeq) {
+    const map = new Map();
+    allSubSeq.forEach((arr) => {
+        const summ = arr.reduce((a, b) => a + b, 0);
+        if (map.has(summ)) {
+            const x = map.get(summ);
+            x.push(arr);
 
-const allSubsquences = generateAllSubsquences(itemSizes);
+            map.set(summ, x);
+        } else {
+            map.set(summ, [arr]);
+        }
+    });
 
-const sumMap = new Map();
-allSubsquences.forEach((arr) => {
-    const summ = arr.reduce((a, b) => a + b, 0);
-    if (sumMap.has(summ)) {
-        const x = sumMap.get(summ);
-        x.push(arr);
+    return map;
+}
 
-        sumMap.set(summ, x);
-    } else {
-        sumMap.set(summ, [arr]);
-    }
-});
-
-const allBinsSubsquences = generateAllSubsquences(bins);
-
-const sumBinsMap = new Map();
-allBinsSubsquences.forEach((arr) => {
-    const summ = arr.reduce((a, b) => a + b, 0);
-    if (sumBinsMap.has(summ)) {
-        const x = sumBinsMap.get(summ);
-        x.push(arr);
-
-        sumBinsMap.set(summ, x);
-    } else {
-        sumBinsMap.set(summ, [arr]);
-    }
-});
-
-const itemSum = itemSizes.reduce((a, b) => a + b, 0);
-
-const minIgnored = 10;
-const maxSpill = Math.max(0, Math.max(...[]) - minIgnored);
-
-const dArraySumOfBins = generateSubset(bins, bins.length - 1, bins.reduce((a, b) => a + b, 0));
-const dArraySumOfItemSizes = generateSubset(itemSizes, itemSizes.length - 1, itemSizes.reduce((a, b) => a + b, 0));
+// const dArraySumOfBins = generateSubset(bins, bins.length - 1, bins.reduce((a, b) => a + b, 0));
+// const dArraySumOfItemSizes = generateSubset(itemSizes, itemSizes.length - 1, itemSizes.reduce((a, b) => a + b, 0));
+function failFastChecks(Bins, slack, mapSumItems) {
+    return false;
+}
 
 function removeSubset(arr, subset) {
     const exclude = [...subset];
@@ -216,10 +198,47 @@ function removeSubset(arr, subset) {
     });
 }
 
-function attemptAssign(binSet, itemSet, waste) {
+function attemptAssign(Bins, Items, slack) {
+    if (Bins.length === 0) {
+        return [];
+    }
+    const allSubsequences = generateAllSubsquences(Items);
+    const mapSumItems = generateSumSetsMap(allSubsequences);
+    if (failFastChecks(Bins, slack, mapSumItems)) {
+        return null;
+    }
+    let surplus = 0;
+    while (surplus < Bins[0] && surplus <= slack) {
+        const summing = Bins[0] - surplus;
+        if (mapSumItems.has(summing)) {
+            const allSets = mapSumItems.get(summing);
+            for (let i = 0; i < allSets.length; i++) {
+                const solution = attemptAssign(removeSubset(Bins, [Bins[0]]), removeSubset(Items, allSets[i]), slack - surplus);
+                if (solution) {
+                    return [...solution, ...Bins[0]];
+                }
+            }
+        }
+        surplus = surplus + 1;
+    }
+
+    return null;
 }
 
-function alg2Calculate() {
+const bins = [100, 100, 100, 100];
+const itemSizes = [95, 95, 95, 99];
+const minIgnored = 5;
+
+function alg2Calculate(Bins, Items, minIgnored) {
+    const itemSum = itemSizes.reduce((a, b) => a + b, 0);
+    const maxSpill = Math.max(0, Math.max(...Bins) - minIgnored);
+
+    const allSubsquences = generateAllSubsquences(Items);
+    const sumMap = generateSumSetsMap(allSubsquences);
+
+    const allBinsSubsquences = generateAllSubsquences(Bins);
+    const sumBinsMap = generateSumSetsMap(allBinsSubsquences);
+
     for (let waste = 0; ; waste++) {
         for (let spill = 0; spill <= maxSpill; spill++) {
             const obtaining = waste + itemSum - spill;
@@ -238,7 +257,14 @@ function alg2Calculate() {
                         const solution = attemptAssign(binSet, itemSet, waste);
 
                         if (solution) {
-                            // assign (Items \ itemSum) to an unused bin in solution;
+                            const lastSet = removeSubset(Items, itemSet);
+                            const unusedBin = solution.find((x) => x.length === 0);
+                            if (unusedBin) {
+                                unusedBin.push(lastSet);
+                            } else {
+                                throw new Error('No unused bin');
+                            }
+
                             return solution;
                         }
                     }
@@ -247,3 +273,6 @@ function alg2Calculate() {
         }
     }
 }
+
+const res1 = alg2Calculate(bins, itemSizes, minIgnored);
+console.log(res1);
