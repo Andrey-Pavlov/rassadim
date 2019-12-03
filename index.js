@@ -215,7 +215,7 @@ function attemptAssign(Bins, Items, slack) {
             for (let i = 0; i < allSets.length; i++) {
                 const solution = attemptAssign(removeSubset(Bins, [Bins[0]]), removeSubset(Items, allSets[i]), slack - surplus);
                 if (solution) {
-                    return [...solution, ...Bins[0]];
+                    return [...solution, [[Bins[0]], allSets[i]]];
                 }
             }
         }
@@ -225,9 +225,13 @@ function attemptAssign(Bins, Items, slack) {
     return null;
 }
 
-const bins = [100, 100, 100, 100];
-const itemSizes = [95, 95, 95, 99];
+const bins = [125, 125, 95, 55, 77].sort((a, b) => b - a);
+const itemSizes = [25, 20, 10, 40, 45, 45, 5, 95, 70, 29].sort((a, b) => b - a);
 const minIgnored = 5;
+
+console.log('Bins: ', bins);
+console.log('Items: ', itemSizes);
+console.log('MinIgnored: ', minIgnored);
 
 function alg2Calculate(Bins, Items, minIgnored) {
     const itemSum = itemSizes.reduce((a, b) => a + b, 0);
@@ -258,9 +262,15 @@ function alg2Calculate(Bins, Items, minIgnored) {
 
                         if (solution) {
                             const lastSet = removeSubset(Items, itemSet);
-                            const unusedBin = solution.find((x) => x.length === 0);
+                            const currentBins = solution.reduce((acc, val) => acc.concat(val[0]), []);
+                            const unusedBins = removeSubset(Bins, currentBins);
+                            const unusedBin = unusedBins[0];
                             if (unusedBin) {
-                                unusedBin.push(lastSet);
+                                if (unusedBin >= lastSet.reduce((acc, val) => acc + val)) {
+                                    solution.push([[unusedBin], lastSet]);
+                                } else {
+                                    throw new Error('Incorrect bin');
+                                }
                             } else {
                                 throw new Error('No unused bin');
                             }
