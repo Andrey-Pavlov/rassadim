@@ -225,16 +225,16 @@ function attemptAssign(Bins, Items, slack) {
     return null;
 }
 
-const bins = [125, 125, 95, 55, 77].sort((a, b) => b - a);
-const itemSizes = [25, 20, 10, 40, 45, 45, 5, 95, 70, 29].sort((a, b) => b - a);
-const minIgnored = 5;
+const bins = [10, 10, 11, 10].sort((a, b) => b - a);
+const itemSizes = [10, 9, 10, 10].sort((a, b) => b - a);
+const minIgnored = 2;
 
 console.log('Bins: ', bins);
 console.log('Items: ', itemSizes);
 console.log('MinIgnored: ', minIgnored);
 
 function alg2Calculate(Bins, Items, minIgnored) {
-    const itemSum = itemSizes.reduce((a, b) => a + b, 0);
+    const itemSum = Items.reduce((a, b) => a + b, 0);
     const maxSpill = Math.max(0, Math.max(...Bins) - minIgnored);
 
     const allSubsquences = generateAllSubsquences(Items);
@@ -243,7 +243,7 @@ function alg2Calculate(Bins, Items, minIgnored) {
     const allBinsSubsquences = generateAllSubsquences(Bins);
     const sumBinsMap = generateSumSetsMap(allBinsSubsquences);
 
-    for (let waste = 0; ; waste++) {
+    for (let waste = 0; waste <= Math.max(...Bins); waste++) {
         for (let spill = 0; spill <= maxSpill; spill++) {
             const obtaining = waste + itemSum - spill;
 
@@ -251,7 +251,7 @@ function alg2Calculate(Bins, Items, minIgnored) {
                 const binSets = sumBinsMap.get(obtaining);
                 for (let i = 0; i < binSets.length; i++) {
                     const binSet = binSets[i];
-                    const tempSet = removeSubset(bins, binSet);
+                    const tempSet = removeSubset(Bins, binSet);
                     if (Math.max(...tempSet) - spill > minIgnored) {
                         continue;
                     }
@@ -265,14 +265,20 @@ function alg2Calculate(Bins, Items, minIgnored) {
                             const currentBins = solution.reduce((acc, val) => acc.concat(val[0]), []);
                             const unusedBins = removeSubset(Bins, currentBins);
                             const unusedBin = unusedBins[0];
+                            const lastSumm = lastSet.reduce((acc, val) => acc + val);
                             if (unusedBin) {
-                                if (unusedBin >= lastSet.reduce((acc, val) => acc + val)) {
+                                if (unusedBin >= lastSumm) {
                                     solution.push([[unusedBin], lastSet]);
                                 } else {
                                     throw new Error('Incorrect bin');
                                 }
                             } else {
-                                throw new Error('No unused bin');
+                                const lastSummx = solution[solution.length-1][1].reduce((acc, val) => acc + val);
+                                if (solution[solution.length-1][0] - (lastSummx + lastSumm) > 0) {
+                                    solution[solution.length-1][1].push(...lastSet);
+                                } else {
+                                    throw new Error('No enought space');
+                                }
                             }
 
                             return solution;
