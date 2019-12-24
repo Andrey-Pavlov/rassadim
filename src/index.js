@@ -158,10 +158,6 @@ const bins = [{
     itemsArray: [],
     length: 1000,
     id: 'B3',
-}, {
-    itemsArray: [],
-    length: 100,
-    id: 'B4',
 }].sort((a, b) => b.length - a.length);
 const itemSizes = [{
     count: 60,
@@ -173,12 +169,12 @@ const itemSizes = [{
     count: 400,
     id: 'I3',
 }, {
-    count: 90,
+    count: 95,
     id: 'I4',
 },
     {
-        count: 50,
-        id: 'I5',
+        count: 10,
+        id: 'I6',
     }].sort((a, b) => b.count - a.count);
 
 const minIgnored = 50; // can be null
