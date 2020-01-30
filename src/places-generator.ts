@@ -1,3 +1,31 @@
+enum Direction {
+    Top,
+    Right,
+    Bot,
+    Left
+}
+
+const addEmptyRowColumn = <T>(arr: T[][], direction: Direction): void => {
+    switch (direction) {
+        case Direction.Top:
+            arr.forEach((subArr: T[]) => {
+                subArr.unshift(null);
+            });
+            break;
+        case Direction.Right:
+            arr.push((new Array(arr[0].length)).fill(null));
+            break;
+        case Direction.Bot:
+            arr.forEach((subArr: T[]) => {
+                subArr.push(null);
+            });
+            break;
+        case Direction.Left:
+            arr.unshift((new Array(arr[0].length)).fill(null));
+            break;
+    }
+};
+
 const getRandomValueAndRemove = (array: any[]): any => {
     const index = Math.floor(Math.random() * array.length);
     const val = array[Math.floor(Math.random() * array.length)];
